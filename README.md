@@ -1,4 +1,4 @@
-# Final Metis  Project 5: Using Logistic Regression to Interprete and Predict Kickstarter Project Sucess
+# Final Metis  Project 5: Using Logistic Regression to Interprete and Predict Kickstarter Project 
 ## Dotun Opasina 
 
 ## SCOPE:
