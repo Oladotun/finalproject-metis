@@ -3,7 +3,7 @@
 
 ## SCOPE:
 
-Kickstarter a crowdfunding website helped people raise a total of [$1.6 Billion ](https://www.cbsnews.com/news/inside-kickstarter-crowdfunding-ideas-that-fail-to-materialize/) so far. For so many campaigns that suceed on kickstarter, there are are even so many that do not. My goal is to create a predictor website that helps fund seekers to predict whether their campaign will suceed or not.
+Kickstarter a crowdfunding website helped people raise a total of [$1.6 Billion ](https://www.cbsnews.com/news/inside-kickstarter-crowdfunding-ideas-that-fail-to-materialize/) so far. For so many campaigns that succeed on kickstarter, there are are even so many that do not. My goal is to create a predictor website that helps fund seekers to predict whether their campaign will suceed or not.
 
 ## METHODOLOGY:
 1. Get recent Kickstarter data from [Kickstarter](https://webrobots.io/kickstarter-datasets/) <br>
