@@ -10,18 +10,17 @@ Kickstarter a crowdfunding website helped people raise a total of [$1.6 Billion 
 2. Download data set into MongoDB and do some data preprocessing <br>
 3. Load MongoDb Data into Pandas<br>
 4. Create some EDA and Data visualization <br>
-   - Best times and days to create a campaign ? <br>
-   - What sort of campaigns get funded the most ? <br>
-   - What is the number of words in the description of a campaign suceed ? <br>
-   - What is the number of words in the name of a campaign that suceed ? <br>
-
+   - Best times and days to create a campaign that will suceed? <br>
+   - What categories of campaigns get funded the most? <br>
+      -  Connect that information to US market segment data to draw insights ? <br>
 5. Feature Engineering and selection of Kickstarter campaign observations <br>
 6. Utilize classification algorithms such as Neural Networks, Logistic regression for prediction<br>
-7. Perform Natural Language Processing on some of the columns e.g the text description of the campaigns could be suitable for sentinment analysis.<br>
+7. Perform Natural Language Processing on some of the columns e.g the text description of the campaigns is suitable for sentinment analysis and topic modeling .<br>
 8. Build predictor output website <br>
 
 ## DATA SOURCES:
 -  [Kickstarter](https://webrobots.io/kickstarter-datasets/) <br>
+- Jo
 
 ## TARGET
 - MVP: Perform EDA visualizations and Feature selections using classification algorithms.
