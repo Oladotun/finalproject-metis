@@ -24,7 +24,7 @@ Kickstarter a crowdfunding website helped people raise a total of [$1.6 Billion 
 -  [Kickstarter](https://webrobots.io/kickstarter-datasets/) <br>
 
 ## TARGET
-- MVP: Perform EDA visualizations and Feature selections using both Neural Networks and Logistic regression.
+- MVP: Perform EDA visualizations and Feature selections using classification algorithms.
 - Final: Build boostrap designed Flask predictor Website to allow people
 
 
