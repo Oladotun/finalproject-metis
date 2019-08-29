@@ -23,7 +23,7 @@ Kickstarter a crowdfunding website helped people raise a total of [$1.6 Billion 
 -  USA market data <br>
 
 ## TARGET
-- MVP: Perform EDA visualizations and Feature selections using classification algorithms.
+- MVP: Perform EDA visualizations, Feature selections using classification algorithms and Topic Modeling to extract topics on descriptions.
 - Final: Build boostrap designed Flask predictor Website to allow people
 
 
