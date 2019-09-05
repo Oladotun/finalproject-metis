@@ -139,9 +139,9 @@ cleanedWithKickTime = pd.get_dummies(cleanedUpKick, columns=["category_name_slug
 cleanedWithKickTime[["goal","duration_for_days"]] = scaled_df
 cleanedWithKickTime.dropna(axis='rows',inplace=True)
 X = cleanedWithKickTime.drop(columns=["state","deadline_moment","deadline_day","launched_at_time","creator_id"])
-Y = cleanedWithKickTime["state"]
+y = cleanedWithKickTime["state"]
 from sklearn.model_selection import train_test_split
-X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=101)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=101)
 
 from sklearn.linear_model import LogisticRegression
 model = LogisticRegression()
@@ -156,11 +156,14 @@ weights = pd.Series(model.coef_[0],index=X.columns.values)
 weightSorted = weights.sort_values(ascending = False)
 
 
-#from keras.preprocessing.text import Tokenizer
-#from keras.preprocessing.sequence import pad_sequences
+from keras.preprocessing.text import Tokenizer
+from keras.preprocessing.sequence import pad_sequences
 from keras.models import Sequential
-from keras.layers import Dense
+from keras.layers import (Dense, Embedding, Reshape, Activation, 
+                          SimpleRNN, LSTM, Convolution1D, 
+                          MaxPooling1D, Dropout, Bidirectional,SpatialDropout1D)
 #from keras.layers import SpatialDropout1D
+#from keras.callbacks import EarlyStopping
 
 ## Neural Network Logistic Regression
 
@@ -168,14 +171,9 @@ model = Sequential()
 model.add(Dense(input_dim=1053, init = 'uniform' ,output_dim=527, activation = 'relu'))
 model.add(Dense(output_dim=527, activation = 'relu'))
 model.add(Dense(output_dim = 1, activation='sigmoid'))
-#model.add(SpatialDropout1D(0.2))
-
-#model.add(LSTM(100, dropout=0.2, recurrent_dropout=0.2))
-#model.add(Dense(18, activation='softmax'))
 model.compile(loss='binary_crossentropy',
                   optimizer='adam',
                   metrics=['accuracy'])
-
 model.summary()
 epochs = 10
 batch_size = 64
@@ -185,42 +183,37 @@ model.fit(X_train, y_train, batch_size=256, epochs=epochs,
               validation_data=(X_test, y_test))
 hidden_features = model.predict(X_test)
 
+## Neural Network Text Fields
+MAX_SEQUENCE_LENGTH = 250
+EMBEDDING_DIM = 100
+MAX_NB_WORDS = 30000
 
-#MAX_SEQUENCE_LENGTH = 250
-## This is fixed.
-#EMBEDDING_DIM = 100
-#MAX_NB_WORDS = 30000
-#
-#
-#
-#tokenizer = Tokenizer(num_words = MAX_NB_WORDS, filters="""!"#$%&()*+,-./:;<=>?@[\\]^_`{|}~\t\n',""")
-#tokenizer.fit_on_texts(newKick['blurb'].values)
-#word_index = tokenizer.word_index
-#
-#
-#X = tokenizer.texts_to_sequences(newKick['blurb'])
-#X = pad_sequences(X, maxlen=MAX_SEQUENCE_LENGTH)
-#
-#X_train, X_test, Y_train, Y_test = train_test_split(X,Y, test_size = 0.20)
-#
-#
-#model = Sequential()
-#model.add(Embedding(input_dim=MAX_NB_WORDS, output_dim=40, embeddings_initializer='glorot_uniform', input_length=MAX_SEQUENCE_LENGTH))
-#model.add(SpatialDropout1D(0.2))
-#
-#model.add(LSTM(100, dropout=0.2, recurrent_dropout=0.2))
-#model.add(Dense(18, activation='softmax'))
-#model.compile(loss='categorical_crossentropy',
-#                  optimizer='adam',
-#                  metrics=['accuracy'])
-#
-#model.summary()
-#epochs = 10
-#batch_size = 64
-#
-#
-#model.fit(X_train, Y_train, batch_size=256, epochs=epochs, 
-#              validation_data=(X_test, Y_test))
-#hidden_features = model.predict(X_test)
+tokenizer = Tokenizer(num_words = MAX_NB_WORDS, filters="""!"#$%&()*+,-./:;<=>?@[\\]^_`{|}~\t\n',""")
+tokenizer.fit_on_texts(newKick['blurb'].values)
+word_index = tokenizer.word_index
+X_blurb = tokenizer.texts_to_sequences(newKick['blurb'])
+X_blurb = pad_sequences(X_blurb, maxlen=MAX_SEQUENCE_LENGTH)
+X_train_blurb, X_test_blurb, y_train_blurb, y_test_blurb = train_test_split(X_blurb,y, test_size = 0.20)
+
+
+model = Sequential()
+model.add(Embedding(input_dim=MAX_NB_WORDS, output_dim=40, 
+                    embeddings_initializer='glorot_uniform', input_length=MAX_SEQUENCE_LENGTH))
+model.add(SpatialDropout1D(0.2))
+
+model.add(LSTM(100, dropout=0.2, recurrent_dropout=0.2))
+model.add(Dense(18, activation='softmax'))
+model.compile(loss='categorical_crossentropy',
+                  optimizer='adam',
+                  metrics=['accuracy'])
+
+model.summary()
+epochs = 10
+batch_size = 64
+
+
+model.fit(X_train_blurb, y_train_blurb, batch_size=256, epochs=epochs, 
+              validation_data=(X_test, y_test))
+hidden_features_blurb = model.predict(X_test_blurb)
 
 
