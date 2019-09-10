@@ -51,6 +51,8 @@ def stateReturn(state):
     else:
         return 0
 
+#kick = pd.read_csv("KickstarterExtraDataFile.csv")
+#kick = pd.read_csv("KickstarterCsv.csv")
 kick = pd.read_csv("Kickstarter001.csv")
 ## Drop non needed columns
 newKick = kick.drop(columns = ["is_backing","is_starred","static_usd_rate","urls",
@@ -120,7 +122,7 @@ newKick["staff_pick"] = newKick["staff_pick"]
 #category = newKick[newKick["state"]=="successful"].groupby("category_slug").count()
 category = newKick[newKick["state"]=="successful"].groupby("category_slug").count()
 
-cleanedUpKick = newKick.drop(columns=["backers_count","blurb","name","pledged","state_changed_at",
+cleanedUpKick = newKick.drop(columns=["backers_count","name","pledged","state_changed_at",
                       "deadline_date","deadline_time","launched_at_date", "creator_name" , "category_name","category_slug","goal_pledged_diff","spotlight"])
 cols = ['goal', 'duration_for_days']
 subset_df = newKick[cols]
@@ -138,82 +140,84 @@ cleanedUpKick['state'] = cleanedUpKick['state'].apply(lambda x:stateReturn(x))
 cleanedWithKickTime = pd.get_dummies(cleanedUpKick, columns=["category_name_slug","city_state","launched_at_day","launched_at_moment"])
 cleanedWithKickTime[["goal","duration_for_days"]] = scaled_df
 cleanedWithKickTime.dropna(axis='rows',inplace=True)
-X = cleanedWithKickTime.drop(columns=["state","deadline_moment","deadline_day","launched_at_time","creator_id"])
+cleanedWithKickTimeBlurb = cleanedWithKickTime['blurb']
+X = cleanedWithKickTime.drop(columns=["state","deadline_moment","blurb","deadline_day","launched_at_time","creator_id"])
 y = cleanedWithKickTime["state"]
 from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=101)
 
 from sklearn.linear_model import LogisticRegression
-model = LogisticRegression()
+model = LogisticRegression(penalty='l1') ## LASSO 
 result = model.fit(X_train, y_train)
+
+
+from sklearn.model_selection import GridSearchCV
+
+#param_grid = {'C': [0.001, 0.01, 0.1, 1, 10, 100, 1000] }
+clf = GridSearchCV(cv=None,
+             estimator=LogisticRegression(C=1.0, intercept_scaling=1,   
+               dual=False, fit_intercept=True, penalty='l1', tol=0.0001),
+             param_grid={'C': [0.001, 0.01, 0.1, 1, 10, 100, 1000]})
+             
+resultclf = clf.fit(X_train, y_train)
 
 from sklearn import metrics
 prediction_test = model.predict(X_test)
 print (metrics.accuracy_score(y_test, prediction_test))
+
+prediction_test_clf = clf.predict(X_test)
+print (metrics.accuracy_score(y_test, prediction_test_clf))
 
 ## To get the weights of all the variables
 weights = pd.Series(model.coef_[0],index=X.columns.values)
 weightSorted = weights.sort_values(ascending = False)
 
 
+weights_clf = pd.Series( clf.best_estimator_.coef_[0],index=X.columns.values)
+weightSorted_clf = weights_clf.sort_values(ascending = False)
+
+
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 from keras.models import Sequential
 from keras.layers import (Dense, Embedding, Reshape, Activation, 
-                          SimpleRNN, LSTM, Convolution1D, 
+                          SimpleRNN, LSTM, Convolution1D, GRU,
                           MaxPooling1D, Dropout, Bidirectional,SpatialDropout1D)
-#from keras.layers import SpatialDropout1D
-#from keras.callbacks import EarlyStopping
 
-## Neural Network Logistic Regression
+from keras.callbacks import EarlyStopping
 
-model = Sequential()
-model.add(Dense(input_dim=1053, init = 'uniform' ,output_dim=527, activation = 'relu'))
-model.add(Dense(output_dim=527, activation = 'relu'))
-model.add(Dense(output_dim = 1, activation='sigmoid'))
-model.compile(loss='binary_crossentropy',
-                  optimizer='adam',
-                  metrics=['accuracy'])
-model.summary()
-epochs = 10
-batch_size = 64
+max_features = len(cleanedWithKickTimeBlurb)
+maxlen = 100
+batch_size = 32
 
 
-model.fit(X_train, y_train, batch_size=256, epochs=epochs, 
-              validation_data=(X_test, y_test))
-hidden_features = model.predict(X_test)
 
-## Neural Network Text Fields
-MAX_SEQUENCE_LENGTH = 250
-EMBEDDING_DIM = 100
-MAX_NB_WORDS = 30000
-
-tokenizer = Tokenizer(num_words = MAX_NB_WORDS, filters="""!"#$%&()*+,-./:;<=>?@[\\]^_`{|}~\t\n',""")
-tokenizer.fit_on_texts(newKick['blurb'].values)
+tokenizer = Tokenizer(num_words = max_features, filters="""!"#$%&()*+,-./:;<=>?@[\\]^_`{|}~\t\n',""")
+tokenizer.fit_on_texts(cleanedWithKickTimeBlurb.values)
 word_index = tokenizer.word_index
-X_blurb = tokenizer.texts_to_sequences(newKick['blurb'])
-X_blurb = pad_sequences(X_blurb, maxlen=MAX_SEQUENCE_LENGTH)
+X_blurb = tokenizer.texts_to_sequences(cleanedWithKickTimeBlurb)
+X_blurb = pad_sequences(X_blurb, maxlen=maxlen)
 X_train_blurb, X_test_blurb, y_train_blurb, y_test_blurb = train_test_split(X_blurb,y, test_size = 0.20)
 
 
-model = Sequential()
-model.add(Embedding(input_dim=MAX_NB_WORDS, output_dim=40, 
-                    embeddings_initializer='glorot_uniform', input_length=MAX_SEQUENCE_LENGTH))
-model.add(SpatialDropout1D(0.2))
+#REG = 1.0
+#DROP = 0.05
 
+model = Sequential()
+model.add(Embedding(input_dim=max_features, output_dim=40, 
+                    embeddings_initializer='glorot_uniform'))
+model.add(SpatialDropout1D(0.2))
 model.add(LSTM(100, dropout=0.2, recurrent_dropout=0.2))
-model.add(Dense(18, activation='softmax'))
-model.compile(loss='categorical_crossentropy',
+model.add(Dropout(0.20))
+model.add(Dense(1, activation='softmax'))
+model.compile(loss='binary_crossentropy',
                   optimizer='adam',
                   metrics=['accuracy'])
 
 model.summary()
 epochs = 10
-batch_size = 64
-
-
-model.fit(X_train_blurb, y_train_blurb, batch_size=256, epochs=epochs, 
-              validation_data=(X_test, y_test))
+batch_size = 32
+model.fit(X_train_blurb, y_train_blurb, batch_size=batch_size, epochs=epochs, 
+              validation_data=(X_test_blurb, y_test_blurb),
+              callbacks=[EarlyStopping(patience=8, verbose=1,restore_best_weights=True)])
 hidden_features_blurb = model.predict(X_test_blurb)
-
-
