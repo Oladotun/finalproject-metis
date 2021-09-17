@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  <head>
+    {% block head %}
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- {% block styles %}
+    Bootstrap CSS
+   
+    {% endblock %} -->
+
+    <title>Kickstarter Project</title>
+    {% endblock %}
+
+
+  </head>
+  <body>
+    <!-- Your page content -->
+    {% block content %}
+    <div class="jumbotron bg-success text-white" >
+      <h1> Welcome to Kickstarter Web Predictor </h1>
+      <p style="font-family: Open Sans; font-size:20px">  Try out multiple drafts of your Kickstarter campaign before submission. <br>
+       Kindly fill out the form below to see your campaign probability of sucesses </p>
+     </div>
+
+    <form action="/predict">
+      <div class="form-group" style="margin-left: 20px">
+      <div class="form-row " >
+
+      <label for="name" style="margin-top:20px ">Project Name: </label>
+      <input type="text" name="name" value={{name}}>
+      <!-- <br><br> -->
+
+      <p class="bg-success text-white col-md-3" style="margin-left: 20px;font-size: 20px"  > 
+        {% if neuralpred != "0" %}
+          Name Probability is: 0.00%
+        {% endif%}
+      </p>
+
+      </div> 
+
+
+
+      <div class="form-row">
+        <div class="col-auto my-2">
+            <label for="blurb" >Description: </label>
+              <textarea name="blurb" value={{blurb}} >
+              </textarea>
+        </div>  
+        <p class="bg-success text-white col-sm-3" style="margin-left: 20px;font-size: 20px"  > 
+              {% if blurbpred != "0" %}
+                Description Probability is: 0.00%
+              {% endif%}
+            </p>
+      </div>
+
+      {% for f in feature_names %}
+        <div class="form-row " style="margin-top:20px">
+          <label for="{{ f }}" style="margin-right: 20px">{{name_input[loop.index0]}}: </label> 
+          <input type="text" name="{{ f }}" value="{{x_input[loop.index0]}}">
+          <br>
+          <br>
+        </div>
+      {% endfor %}
+
+      <!-- <div class="col-auto my-2"> -->
+        <div class="form-row" style="margin-right: 40px; margin-top: 20px">
+        <label for="categories" style="margin-right: 20px">Categories</label>
+        <select  name= categories method="GET" action="/">
+          {% for curr in categories  %}
+          <option value= "category_name_slug_{{curr}}" SELECTED>{{curr}}</option>"
+          {% endfor %}
+        </select>
+
+
+        <p class="bg-success text-white col-sm-3" style="margin-left: 20px;font-size: 20px"  > 
+        {% if logisticpred != "0" %}
+          Categorical Data Probability is:  0.00%
+        {% endif%}
+      </p>
+      </div>
+    <!-- </div> -->
+      
+      
+
+        <!-- <div class="col-auto my-2">
+        <label for="states">Location</label>
+            <select class="form-control col-sm-10" name= states method="GET" action="/">
+              {% for state in states %}
+              <option value= "city_state_{{state}}" SELECTED>{{state}}</option>"
+              {% endfor %}
+            </select>
+          </div>  -->  
+      
+     <!--  <br><br> -->
+      <!-- <div class="col-auto my-2">
+        <label for="day">Day of Week</label>
+        <select class="form-control" name= day method="GET" action="/">
+          {% for curr in day %}
+          <option value= "launched_at_day_ {{curr}}" SELECTED>{{curr}}</option>"
+          {% endfor %}
+        </select>
+      </div>
+      <br><br> -->
+      <!-- <div class="col-auto my-2">
+        <label for="time">Time of Day</label>
+        <select class="form-control" name= time method="GET" action="/">
+          {% for curr in time %}
+          <option value= "launched_at_moment_{{curr}}" SELECTED>{{curr}}</option>"
+          {% endfor %}
+        </select>
+      </div> -->
+      <!-- <div class="col-auto my-2" > -->
+      
+         <button type="submit"  value="Submit"class="btn btn-success center-block" method="get" >Submit</button>
+
+      <!-- </div> -->
+      </div>
+
+    </div>
+
+      <!-- <input type="submit" value="Submit" method="get"> -->
+
+      <p class="bg-success text-white col-sm-6" style="margin-left: 20px;font-size: 50px"  > 
+        {% if resultpred != "0" %}
+          Probability of Success is: 0.00%
+        {% endif%}
+      </p>
+
+      <!-- <p class="bg-success text-white col-md-3" style="margin-left: 20px;font-size: 20px"  > 
+        {% if neuralpred != "0" %}
+          Name Probability is: 0.00%
+        {% endif%}
+      </p>
+
+
+
+
+      <p class="bg-success text-white col-md-3" style="margin-left: 20px;font-size: 20px"  > 
+        {% if blurbpred != "0" %}
+          Description Probability is: 0.00%
+        {% endif%}
+      </p>
+
+      <p class="bg-success text-white col-md-3" style="margin-left: 20px;font-size: 20px"  > 
+        {% if logisticpred != "0" %}
+          Categorical Data Probability is:  0.00%
+        {% endif%}
+      </p> -->
+
+    </form>
+
+    
+    <!-- {% endblock %} -->
+
+   
+  </body>
+</html>
+
+
+

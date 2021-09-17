@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  <head></head>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<!-- <link href='./styles/predictorcontact.css' rel='stylesheet'> -->
+<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/predictorcontact.css') }}">
+<!------ Include the above in your HEAD tag ---------->
+
+<div class="container contact-form" style="margin-right: 50px;" >
+            <div class="contact-image">
+                <img src="https://image.ibb.co/kUagtU/rocket_contact.png" alt="rocket_contact"/>
+            </div>
+             <form action="/predict">
+                <h3>Kickstarter Predictor</h3>
+               <div class="row">
+                    <div class="col-md-6">
+                       <!--  <div class="form-group">
+                            <input type="text" name="name" value={{name}} style="margin-top: 20px;" class="form-control" placeholder="Your Name *" value="" />
+                        </div> -->
+                        
+
+                        <!-- <label for="name" style="margin-top:20px ">Project Name: </label> -->
+                          <input  style="margin-top:20px; width: 543px" type="text" class="form-control" placeholder="Project Name *" name="name" 
+                                  value=  "{{name_message}}"   >
+
+                        {% for f in feature_names %}
+                            {% if f != "staff_pick"%}
+                            <div class="form-group">
+                              <input type="text" name="{{ f }}" style="margin-top: 20px;" class="form-control" placeholder="{{name_input[loop.index0]}} *" value="{{x_input[loop.index0]}}" />
+                            </div>
+                            {% endif%}
+
+
+
+                          {% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <textarea name="blurb" class="form-control" style="margin-top: 40px;width: 100%; height: 150px;" placeholder="Description *" value= "{{blurb_message}}">{{blurb_message}}</textarea>
+
+                           <!--  <input type="text" name="blurb" style="margin-top: 20px;" class="form-control" placeholder="blurb *" value="{{blurb}}}" /> -->
+                        </div>
+
+                        <div>
+                            <label for="categories" style="margin-right: 20px">Categories</label>
+                            <select  name= categories method="GET" action="/">
+                              {% for curr in categories  %}
+                              <option value= "category_name_slug_{{curr}}" SELECTED>{{curr}}</option>"
+                              {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                           <button type="submit"  value="Submit"class="btn btn-info center-block" method="get" >Submit</button>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <p class="bg-success text-white col-md-8" style="font-size: 40px"  > 
+                    {% if resultpred != "0" %}
+                      Probability of Campaign Success: {{resultpred}}% 
+                    {% endif%}
+                  </p>
+                  <p class="bg-success text-white col-md-4" style="font-size: 40px"  > 
+                    {% if original_pred_probs != "0" %} original: {{original_pred_probs}}% {% endif %}
+                  </p>
+                </div>
+              <div class="row">
+                  <p class="bg-secondary text-white col-md-8" style="font-size: 20px"  > 
+                    {% if neuralpred != "0" %}
+                      Probability of Name: {{neuralpred}}% 
+                      {%endif%}
+                  </p>
+
+                  <p class="bg-secondary text-white col-md-4" style="font-size: 20px"  > 
+                       {% if original_neural_probs != "0" %} 
+                         original score: {{original_neural_probs}}%  
+                       {% endif %}
+                  
+                  </p>
+            </div>
+
+            <div class="row">
+
+              <p class="bg-info text-white col-md-8" style="font-size: 20px"  > 
+                  {% if blurbpred != "0" %}
+                    Probability of Description: {{blurbpred}}% 
+                  {% endif%}
+              </p>
+
+              <p class="bg-secondary text-white col-md-4" style="font-size: 20px"  > 
+                   {% if original_blurb_probs != "0" %} 
+                     original score: {{original_blurb_probs}}%
+                   {% endif %}
+              
+              </p>
+          </div>
+              <div class="row">
+                <p class="bg-primary text-white col-md-8" style="font-size: 20px"  > 
+                    {% if logisticpred != "0" %}
+                      Probability of Goal and Duration:  {{logisticpred}}% 
+                    {% endif%}
+                  </p>
+
+                  <p class="bg-secondary text-white col-md-4" style="font-size: 20px"  > 
+                       {% if original_logistic_probs != "0" %} 
+                       original score: {{original_logistic_probs}} %
+                       {% endif %}
+                  
+                  </p>
+                  
+              </div>
+                
+
+              
+
+
+                <!-- <div class="row">
+                    <div class="form-group">
+                            <input type="submit" name="btnSubmit" class="btnContact" value="Send Message" />
+                        </div>
+                </div> -->
+            </form>
+</div>
+</html>
